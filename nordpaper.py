@@ -162,6 +162,7 @@ def color_evolution(val):
     print(css)
     return css
 
+
 def add_visualization_data(data_frame):
     print("dans add visualization data")
     m2_prime_proposee = data_frame['M2_prime_proposee'] - data_frame['M2_prime']
@@ -172,6 +173,8 @@ def add_visualization_data(data_frame):
     data_frame.insert(13, 'M6_prime_evolution', m6_prime_proposee)
     evolution_toutes_machine = m2_prime_proposee + m4_prime_proposee + m6_prime_proposee
     data_frame.insert(14, 'prime_evolution_toutes_machine', evolution_toutes_machine)
+    
+    # st.dataframe(df.style.applymap(color_survived, subset=['Survived']))
     
     col_list= list(data_frame)
     
@@ -210,7 +213,7 @@ def upload_file():
 def add_ecart_objectif(data_frame):
     prime = 0 if data_frame['prime_evolution_toutes_machine'] is None else data_frame['prime_evolution_toutes_machine']
     objectif = 0 if data_frame['Objectif'] is None else data_frame['Objectif']
-    ecart = objectif - prime
+    ecart = abs(objectif - prime)
     data_frame.insert(12, 'Ecart Objectif', ecart)
     return data_frame
     
