@@ -15,11 +15,9 @@ def data_sheets():
     sheet_names = pd.ExcelFile(file_name).sheet_names
     data_sheet_list = list()
     for sheet in sheet_names:
-        # print(sheet)
         sheet_as_list = sheet.split("_")
         if sheet_as_list[0] == 'data':
             data_sheet_list.append(sheet)
-    # print(f"list des sheet a lire {data_sheet_list}")
     st.session_state.data_sheet_list = data_sheet_list
 
 def load_file(file_name = 'trg_simu.xlsx'):
@@ -74,37 +72,22 @@ def get_calculated_data(sheet):
     base_data_2024 = base_data_2024.set_axis(columns, axis=1)
     calculated_data_2024 = base_data_2024.copy()
     bonus = table_bonus_by_trg(file_name)
-    # st.write("calculated data 2024")
-    # st.write(f"nombre de ligne base {len(base_data_2024)}")
-    # st.write(f"nombre de ligne bonus {len(bonus)}")
     m2_trg_prime = 0
     m4_trg_prime = 0
     m6_trg_prime = 0
     for row_index in range(len(calculated_data_2024)):
-        # st.write(f"j'affiche la ligne {row_index}")
-        # st.write(calculated_data_2024.iloc[row_index])
-        # st.write(f"j'affiche m2 trg")
-        # st.write(calculated_data_2024.iloc[row_index]['M2_trg'])
         m2_trg_effectif = calculated_data_2024.iloc[row_index]['M2_trg']
         m4_trg_effectif = calculated_data_2024.iloc[row_index]['M4_trg']
         m6_trg_effectif = calculated_data_2024.iloc[row_index]['M6_trg']
-        # st.write("ref bonus")
-        # st.write(bonus[['M2_trg', 'M2_prime']])
         for bonus_row_index in range(len(bonus)):
-            # st.write(bonus.iloc[bonus_row_index]['M2_trg'])
             if m2_trg_effectif >= bonus.iloc[bonus_row_index]['M2_trg']:
                 m2_trg_prime = bonus.iloc[bonus_row_index]['M2_prime']
             if m4_trg_effectif >= bonus.iloc[bonus_row_index]['M4_trg']:
                 m4_trg_prime = bonus.iloc[bonus_row_index]['M4_prime']
             if m6_trg_effectif >= bonus.iloc[bonus_row_index]['M6_trg']:
                 m6_trg_prime = bonus.iloc[bonus_row_index]['M6_prime']
-        # st.write(f"la prime de {calculated_data_2024.iloc[row_index]['Mois']} pour la machine M2 sera donc de {m2_trg_prime}")
-        # st.write(calculated_data_2024.loc[row_index]['M2_prime'])
         calculated_data_2024.at[row_index, 'M2_prime'] = m2_trg_prime
-        # st.write(calculated_data_2024.loc[row_index]['M2_prime'])
-        # st.write(f"la prime de {calculated_data_2024.iloc[row_index]['Mois']} pour la machine M6 sera donc de {m4_trg_prime}")
         calculated_data_2024.at[row_index, 'M4_prime'] = m4_trg_prime
-        # st.write(f"la prime de {calculated_data_2024.iloc[row_index]['Mois']} pour la machine M6 sera donc de {m6_trg_prime}")
         calculated_data_2024.at[row_index, 'M6_prime'] = m6_trg_prime
     st.session_state.calculated_data = dict()
     st.session_state.calculated_data[sheet] = calculated_data_2024
@@ -114,46 +97,27 @@ def get_calculated_data(sheet):
 def get_edited_data(sheet):
     file_name = st.session_state.file_name
     bonus = st.session_state.dynamic_data
-    # st.write(bonus)
     columns=['Annee', 'Mois', 'M2_trg', 'M2_prime_proposee','M4_trg', 'M4_prime_proposee','M6_trg', 'M6_prime_proposee',]
     base_data_2024 = pd.read_excel(file_name, sheet_name=sheet)
     base_data_2024 = base_data_2024.set_axis(columns, axis=1)
     edited_data_2024 = base_data_2024.copy()
-    # st.write("Edited data 2024")
-    # st.write(f"nombre de ligne base {len(base_data_2024)}")
-    # st.write(f"nombre de ligne bonus {len(bonus)}")
     m2_trg_prime = 0
     m4_trg_prime = 0
     m6_trg_prime = 0
     for row_index in range(len(edited_data_2024)):
-        # st.write(f"j'affiche la ligne {row_index}")
-        # st.write(edited_data_2024.iloc[row_index])
-        # st.write(f"j'affiche m2 trg")
-        # st.write(edited_data_2024.iloc[row_index]['M2_trg'])
         m2_trg_effectif = edited_data_2024.iloc[row_index]['M2_trg']
         m4_trg_effectif = edited_data_2024.iloc[row_index]['M4_trg']
         m6_trg_effectif = edited_data_2024.iloc[row_index]['M6_trg']
-        # st.write("ref bonus")
-        # st.write(bonus[['M2_trg', 'M2_prime']])
         for bonus_row_index in range(len(bonus)):
-            # st.write(bonus.iloc[bonus_row_index]['M2_trg'])
             if m2_trg_effectif >= bonus.iloc[bonus_row_index]['M2_trg']:
                 m2_trg_prime = bonus.iloc[bonus_row_index]['M2_prime']
             if m4_trg_effectif >= bonus.iloc[bonus_row_index]['M4_trg']:
                 m4_trg_prime = bonus.iloc[bonus_row_index]['M4_prime']
             if m6_trg_effectif >= bonus.iloc[bonus_row_index]['M6_trg']:
                 m6_trg_prime = bonus.iloc[bonus_row_index]['M6_prime']
-        # st.write(f"la prime de {edited_data_2024.iloc[row_index]['Mois']} pour la machine M2 sera donc de {m2_trg_prime}")
-        # st.write(f"value prime : {m2_trg_prime}")
-        # st.write(f"avant : {edited_data_2024.loc[row_index]['M2_prime']}")
-        # edited_data_2024.loc[row_index]['M2_prime'] = m2_trg_prime
         edited_data_2024.at[row_index, 'M2_prime_proposee'] = m2_trg_prime
-        # st.write(f"apres {edited_data_2024.loc[row_index]['M2_prime']}")
-        # st.write(f"la prime de {edited_data_2024.iloc[row_index]['Mois']} pour la machine M6 sera donc de {m4_trg_prime}")
         edited_data_2024.at[row_index, 'M4_prime_proposee'] = m4_trg_prime
-        # st.write(f"la prime de {edited_data_2024.iloc[row_index]['Mois']} pour la machine M6 sera donc de {m6_trg_prime}")
         edited_data_2024.at[row_index, 'M6_prime_proposee'] = m6_trg_prime
-    # edited_data_2024.update(edited_data_2024)
     st.session_state.edited_data = dict()
     st.session_state.edited_data[sheet] = edited_data_2024
     return edited_data_2024
@@ -185,7 +149,6 @@ def display_editable_bonus(bonus):
         pass
 
 def display_editated_data():
-    # st.write(st.session_state.dynamic_data)
     get_edited_data()
     st.write(st.session_state.edited_data)
     
@@ -213,20 +176,11 @@ def add_visualization_data(data_frame):
     col_list= list(data_frame)
     
     columns_without_sum = ['Annee', 'Mois', 'M2_trg', 'M4_trg', 'M6_trg']
-    # col_list.remove(columns_without_sum)
-    # col_list = [x for x in col_list if x not in columns_without_sum]
     print(f"col list {col_list}")
     data_frame.loc['total annee'] = data_frame.sum(numeric_only=True)
     
-    # data_frame.loc['total annee'] = data_frame.sum(numeric_only=True)
     columns_without_sum = ['Annee', 'Mois', 'M2_trg', 'M4_trg', 'M6_trg']
     data_frame.loc[data_frame.index[-1], columns_without_sum] = None
-    
-    # color_evolution(40)
-    # color_evolution(-20)
-    # data_frame.style.apply(lambda x:x.map(color_evolution), subset=['M2_prime_proposee'])
-    # data_frame.style.apply('background-color: red', axis=None)
-    # data_frame.style.apply(lambda x:x.map(color_evolution), subset=['M2_prime_evolution'])
     return data_frame
 
     
@@ -246,12 +200,8 @@ def get_aggregated_data(sheet):
     columns_order = [0, 1, 2, 3, 8, 4, 5, 9 , 6, 7, 10]
     aggregate_df = new_df.iloc[:, columns_order]
     aggregate_df = add_visualization_data(aggregate_df)
-    # row_total = aggregate_df.iloc[-1]
     row_total = aggregate_df[12::1]
     row_total.at["total annee", 'Annee'] = sheet.split("_")[1]
-    # # st.write(f"row total {row_total}")
-    # st.table(row_total)
-    # st.write(aggregate_df)
     return aggregate_df, row_total
 
 def upload_file():
@@ -259,8 +209,8 @@ def upload_file():
     
 def add_ecart_objectif(data_frame):
     prime = 0 if data_frame['prime_evolution_toutes_machine'] is None else data_frame['prime_evolution_toutes_machine']
-    ecart = 0 if data_frame['Objectif'] is None else data_frame['Objectif']
-    ecart = ecart - prime
+    objectif = 0 if data_frame['Objectif'] is None else data_frame['Objectif']
+    ecart = objectif - prime
     data_frame.insert(12, 'Ecart Objectif', ecart)
     return data_frame
     
@@ -275,10 +225,7 @@ def get_summary():
         summary_frame = summary_frame.drop(columns_to_drop, axis=1)
         summary_frame["Objectif"] = int(st.session_state.objectif)
         summary_frame = add_ecart_objectif(summary_frame)
-        
-        #columns_without_sum = ['Annee', 'Mois', 'M2_trg', 'M4_trg', 'M6_trg']
         summary_frame.loc['Total'] = summary_frame.sum(numeric_only=True)
-        # columns_without_sum = ['Annee', 'Mois', 'M2_trg', 'M4_trg', 'M6_trg']
         summary_frame.loc[summary_frame.index[-1], 'Annee'] = 'Total sur '+str(len(st.session_state.data_sheet_list))+' ans'
         st.write("Resumé : ")
         st.write(summary_frame)
@@ -292,8 +239,6 @@ def objectif():
 
 def main():
     st.session_state.objectif = 0
-    # file_name = 'trg_simu.xlsx'
-    # st.session_state.file_name = file_name
     file_name = load_file('trg_simu.xlsx')
     bonus = table_bonus_by_trg(st.session_state.file_name)
     
