@@ -68,17 +68,17 @@ def get_all_aggregated_data():
 def get_calculated_data(sheet):
     file_name = st.session_state.file_name
     columns=['Annee', 'Mois', 'M2_trg', 'M2_prime','M4_trg', 'M4_prime','M6_trg', 'M6_prime',]
-    base_data_2024 = pd.read_excel(file_name, sheet_name=sheet)
-    base_data_2024 = base_data_2024.set_axis(columns, axis=1)
-    calculated_data_2024 = base_data_2024.copy()
+    base_data = pd.read_excel(file_name, sheet_name=sheet)
+    base_data = base_data.set_axis(columns, axis=1)
+    calculated_data = base_data.copy()
     bonus = table_bonus_by_trg(file_name)
-    m2_trg_prime = 0
-    m4_trg_prime = 0
-    m6_trg_prime = 0
-    for row_index in range(len(calculated_data_2024)):
-        m2_trg_effectif = calculated_data_2024.iloc[row_index]['M2_trg']
-        m4_trg_effectif = calculated_data_2024.iloc[row_index]['M4_trg']
-        m6_trg_effectif = calculated_data_2024.iloc[row_index]['M6_trg']
+    for row_index in range(len(calculated_data)):
+        m2_trg_prime = 0
+        m4_trg_prime = 0
+        m6_trg_prime = 0
+        m2_trg_effectif = calculated_data.iloc[row_index]['M2_trg']
+        m4_trg_effectif = calculated_data.iloc[row_index]['M4_trg']
+        m6_trg_effectif = calculated_data.iloc[row_index]['M6_trg']
         for bonus_row_index in range(len(bonus)):
             if m2_trg_effectif >= bonus.iloc[bonus_row_index]['M2_trg']:
                 m2_trg_prime = bonus.iloc[bonus_row_index]['M2_prime']
@@ -86,28 +86,27 @@ def get_calculated_data(sheet):
                 m4_trg_prime = bonus.iloc[bonus_row_index]['M4_prime']
             if m6_trg_effectif >= bonus.iloc[bonus_row_index]['M6_trg']:
                 m6_trg_prime = bonus.iloc[bonus_row_index]['M6_prime']
-        calculated_data_2024.at[row_index, 'M2_prime'] = m2_trg_prime
-        calculated_data_2024.at[row_index, 'M4_prime'] = m4_trg_prime
-        calculated_data_2024.at[row_index, 'M6_prime'] = m6_trg_prime
+        calculated_data.at[row_index, 'M2_prime'] = m2_trg_prime
+        calculated_data.at[row_index, 'M4_prime'] = m4_trg_prime
+        calculated_data.at[row_index, 'M6_prime'] = m6_trg_prime
     st.session_state.calculated_data = dict()
-    st.session_state.calculated_data[sheet] = calculated_data_2024
-    return calculated_data_2024
-    st.write(calculated_data_2024)
+    st.session_state.calculated_data[sheet] = calculated_data
+    return calculated_data
     
 def get_edited_data(sheet):
     file_name = st.session_state.file_name
     bonus = st.session_state.dynamic_data
     columns=['Annee', 'Mois', 'M2_trg', 'M2_prime_proposee','M4_trg', 'M4_prime_proposee','M6_trg', 'M6_prime_proposee',]
-    base_data_2024 = pd.read_excel(file_name, sheet_name=sheet)
-    base_data_2024 = base_data_2024.set_axis(columns, axis=1)
-    edited_data_2024 = base_data_2024.copy()
+    base_data = pd.read_excel(file_name, sheet_name=sheet)
+    base_data = base_data.set_axis(columns, axis=1)
+    edited_data = base_data.copy()
     m2_trg_prime = 0
     m4_trg_prime = 0
     m6_trg_prime = 0
-    for row_index in range(len(edited_data_2024)):
-        m2_trg_effectif = edited_data_2024.iloc[row_index]['M2_trg']
-        m4_trg_effectif = edited_data_2024.iloc[row_index]['M4_trg']
-        m6_trg_effectif = edited_data_2024.iloc[row_index]['M6_trg']
+    for row_index in range(len(edited_data)):
+        m2_trg_effectif = edited_data.iloc[row_index]['M2_trg']
+        m4_trg_effectif = edited_data.iloc[row_index]['M4_trg']
+        m6_trg_effectif = edited_data.iloc[row_index]['M6_trg']
         for bonus_row_index in range(len(bonus)):
             if m2_trg_effectif >= bonus.iloc[bonus_row_index]['M2_trg']:
                 m2_trg_prime = bonus.iloc[bonus_row_index]['M2_prime']
@@ -115,12 +114,12 @@ def get_edited_data(sheet):
                 m4_trg_prime = bonus.iloc[bonus_row_index]['M4_prime']
             if m6_trg_effectif >= bonus.iloc[bonus_row_index]['M6_trg']:
                 m6_trg_prime = bonus.iloc[bonus_row_index]['M6_prime']
-        edited_data_2024.at[row_index, 'M2_prime_proposee'] = m2_trg_prime
-        edited_data_2024.at[row_index, 'M4_prime_proposee'] = m4_trg_prime
-        edited_data_2024.at[row_index, 'M6_prime_proposee'] = m6_trg_prime
+        edited_data.at[row_index, 'M2_prime_proposee'] = m2_trg_prime
+        edited_data.at[row_index, 'M4_prime_proposee'] = m4_trg_prime
+        edited_data.at[row_index, 'M6_prime_proposee'] = m6_trg_prime
     st.session_state.edited_data = dict()
-    st.session_state.edited_data[sheet] = edited_data_2024
-    return edited_data_2024
+    st.session_state.edited_data[sheet] = edited_data
+    return edited_data
     
 def table_bonus_by_trg(file_name = 'trg_simu.xlsx'):
     columns=['M2_trg', 'M2_prime','M4_trg', 'M4_prime','M6_trg', 'M6_prime',]
@@ -128,9 +127,9 @@ def table_bonus_by_trg(file_name = 'trg_simu.xlsx'):
     bonus = bonus.set_axis(columns, axis=1)
     return bonus
 
-def display_bonus_by_trg(bonus):
-    st.write("calcul des primes par machine et TRG")
-    st.write(bonus)
+# def display_bonus_by_trg(bonus):
+#     st.write("calcul des primes par machine et TRG")
+#     st.write(bonus)
     
 def get_result_aggregate():
     all_years_aggregate_df = get_all_aggregated_data()
@@ -138,9 +137,16 @@ def get_result_aggregate():
     st.write("aggregate : ")
     for sheet, aggregate in all_years_aggregate_df.items():
         st.write("Année "+sheet.split('_')[1]+" : ")
-        st.write(aggregate)
+        st.dataframe(aggregate)
+        #     aggregate.apply(
+        #         'background-color : red',
+        #         axis=1,
+        #         subset=["M2_prime_evolution"],
+        #     )
+        # )
     
-def display_editable_bonus(bonus):
+def display_editable_bonus():
+    bonus = table_bonus_by_trg(st.session_state.file_name)
     st.write("editer des primes par machine et TRG")
     st.session_state.dynamic_data = st.data_editor(bonus, num_rows="dynamic")
     objectif()
@@ -150,7 +156,7 @@ def display_editable_bonus(bonus):
 
 def display_editated_data():
     get_edited_data()
-    st.write(st.session_state.edited_data)
+    st.dataframe(st.session_state.edited_data)
     
 def color_evolution(val):
     color = 'white'
@@ -243,10 +249,9 @@ def objectif():
 def main():
     st.session_state.objectif = 0
     file_name = load_file('trg_simu.xlsx')
-    bonus = table_bonus_by_trg(st.session_state.file_name)
     
     data_sheets()
-    display_editable_bonus(bonus)
+    display_editable_bonus()
     upload_file()
     
 if __name__ == '__main__':
