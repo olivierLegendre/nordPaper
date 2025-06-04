@@ -100,10 +100,10 @@ def get_edited_data(sheet):
     base_data = pd.read_excel(file_name, sheet_name=sheet)
     base_data = base_data.set_axis(columns, axis=1)
     edited_data = base_data.copy()
-    m2_trg_prime = 0
-    m4_trg_prime = 0
-    m6_trg_prime = 0
     for row_index in range(len(edited_data)):
+        m2_trg_prime = 0
+        m4_trg_prime = 0
+        m6_trg_prime = 0
         m2_trg_effectif = edited_data.iloc[row_index]['M2_trg']
         m4_trg_effectif = edited_data.iloc[row_index]['M4_trg']
         m6_trg_effectif = edited_data.iloc[row_index]['M6_trg']
@@ -157,17 +157,6 @@ def display_editable_bonus():
 def display_editated_data():
     get_edited_data()
     st.dataframe(st.session_state.edited_data)
-    
-def color_evolution(val):
-    color = 'white'
-    if val > 0:
-        color = 'green'
-    if val < 0:
-        color = 'red'
-    css = f'background-color: {color}'
-    print(css)
-    return css
-
 
 def add_visualization_data(data_frame):
     print("dans add visualization data")
@@ -214,7 +203,11 @@ def get_aggregated_data(sheet):
     return aggregate_df, row_total
 
 def upload_file():
-    st.file_uploader("Choisissez un fichier a traiter")
+    uploaded_file = st.file_uploader("Choisissez un fichier a traiter", type="xlsx")
+    if uploaded_file is not None:
+        # Can be used wherever a "file-like" object is accepted:
+        load_file(uploaded_file)
+        
     
 def add_ecart_objectif(data_frame):
     prime = 0 if data_frame['prime_evolution_toutes_machine'] is None else data_frame['prime_evolution_toutes_machine']
@@ -222,7 +215,28 @@ def add_ecart_objectif(data_frame):
     ecart = abs(objectif - prime)
     data_frame.insert(12, 'Ecart Objectif', ecart)
     return data_frame
-    
+
+def color_survived(val):
+    color = 'green' if val>500000 else 'red'
+    return f'background-color: {color}'
+
+def color_evolution(val):
+    color = 'white'
+    if val > 0:
+        color = '#CCFF99'
+    if val > 100:
+        color = '#99FF33'
+    if val > 200:
+        color = '#66CC00'
+    if val < 0:
+        color = '#FF9999'
+    if val < -100:
+        color = '#FF3333'
+    if val < -200:
+        color = '#CC0000'
+    css = f'background-color: {color}'
+    return css
+
 def get_summary():
     if 'summary' not in st.session_state:
         print("probleme with summary")
@@ -237,7 +251,24 @@ def get_summary():
         summary_frame.loc['Total'] = summary_frame.sum(numeric_only=True)
         summary_frame.loc[summary_frame.index[-1], 'Annee'] = 'Total sur '+str(len(st.session_state.data_sheet_list))+' ans'
         st.write("Resumé : ")
-        st.write(summary_frame)
+        summary_frame.reset_index(inplace=True)
+        summary_frame = summary_frame.style.map(color_evolution, subset=['M4_prime_evolution', 'M2_prime_evolution', 'M6_prime_evolution', 'prime_evolution_toutes_machine'])
+        
+        st.dataframe(summary_frame, column_config={
+            'M2_prime': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M2_prime_proposee': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M4_prime': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M4_prime_proposee': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M6_prime': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M6_prime_proposee': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'prime_evolution_toutes_machine': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'Objectif': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'Ecart Objectif': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M2_prime_evolution': st.column_config.NumberColumn(step=1, format='%.2f'),
+            'M4_prime_evolution': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            'M6_prime_evolution': st.column_config.NumberColumn(step=2, format='%.2f' ),
+            }
+        )
     pass
 
 def objectif():
@@ -252,7 +283,7 @@ def main():
     
     data_sheets()
     display_editable_bonus()
-    upload_file()
+    # upload_file()
     
 if __name__ == '__main__':
     main()
